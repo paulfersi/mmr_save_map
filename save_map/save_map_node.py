@@ -10,22 +10,14 @@ class SaveMap(Node):
 
     export = False      # flag to export cones_positions at the end of the first lap
 
-    blue = {
-        "x" : [],
-        "y" : [],
-    }
-    yellow = {
-        "x" : [],
-        "y" : [],
-    }
-    orange = {
-        "x" : [],
-        "y" : [],
-    }
-    big_orange = {
-        "x" : [],
-        "y" : [],
-    }
+    blue_x = []
+    blue_y = []
+    yellow_x = []
+    yellow_y = []
+    orange_x = []
+    orange_y = []
+    big_orange_x = []
+    big_orange_y = []
 
     def __init__(self):
         super().__init__('save_map')
@@ -41,49 +33,39 @@ class SaveMap(Node):
         self.get_logger().info('Received cones position')
 
         for i in range(len(msg.points)):
-            if msg.colors[i].r < 0.1 and msg.colors[i].g <0.1 and msg.colors[i].b <0.9:
-                self.blue["x"].append(msg.points[i].x)
-                self.blue["y"].append(msg.points[i].y)
-            elif msg.colors[i].r < 0.1 and msg.colors[i].g <0.1 and msg.colors[i].b <0.9:
-                self.yellow["x"].append(msg.points[i].x)
-                self.yellow["y"].append(msg.points[i].y)      
-            elif msg.colors[i].r >0.9 and msg.colors[i].g >0.3 and msg.colors[i].b <0.1:
-                self.orange["x"].append(msg.points[i].x)
-                self.orange["y"].append(msg.points[i].y)      
-            elif msg.colors[i].r >0.9 and msg.colors[i].g >0.6 and msg.colors[i].b <0.1:
-                self.big_orange["x"].append(msg.points[i].x)
-                self.big_orange["y"].append(msg.points[i].y)   
+            if msg.colors[i].r < float(0.1) and msg.colors[i].g <float(0.1) and msg.colors[i].b <float(0.9):
+                self.blue_x.append(msg.points[i].x)
+                self.blue_y.append(msg.points[i].y)
+            elif msg.colors[i].r < float(0.1) and msg.colors[i].g <float(0.1) and msg.colors[i].b <float(0.9):
+                self.yellow_x.append(msg.points[i].x)
+                self.yellow_y.append(msg.points[i].y)      
+            elif msg.colors[i].r >float(0.9) and msg.colors[i].g >float(0.3) and msg.colors[i].b <float(0.1):
+                self.orange_x.append(msg.points[i].x)
+                self.orange_y.append(msg.points[i].y)      
+            elif msg.colors[i].r > float(0.9) and msg.colors[i].g >float(0.6) and msg.colors[i].b <float(0.1):
+                self.big_orange_x.append(msg.points[i].x)
+                self.big_orange_y.append(msg.points[i].y)   
 
         if(self.export):
             self.destroy_subscription(self.cones_positions_subscriber)
             self.get_logger().info("Cones positions subscriber destroyed")
-            self.export_cones(self.blue,self.yellow,self.orange,self.big_orange)
+            self.export_cones(self.blue_x, self.blue_y, self.yellow_x, self.yellow_y,self.orange_x,self.orange_y,self.big_orange_x,self.big_orange_y)
 
     
-    def export_cones(self, blue, yellow, orange, big_orange):
-
-        self.get_logger().info("------------DEBUG-------------")
-        self.get_logger().info(f"Blue contains x: {len(blue["x"])} , y: {len(blue["y"])}")
-        self.get_logger().info(f"Yellow contains x: {len(yellow["x"])} , y: {len(yellow["y"])}")
-        self.get_logger().info("------------------------------")
-
+    def export_cones(self, blue_x, blue_y, yellow_x, yellow_y, orange_x, orange_y, big_orange_x, big_orange_y):
+        #json object creation
         j = {
-            "blue": {
-                "blue_x" : [point["x"] for point in blue],
-                "blue_y" : [point["y"] for point in blue]
-            },
-            "yellow": {
-                "yellow_x" : [point["x"] for point in yellow],
-                "yellow_y" : [point["y"] for point in yellow]
-            },
-            "orange": {
-                "orange_x" : [point["x"] for point in orange],
-                "orange_y" : [point["y"] for point in orange]
-            },
-            "big_orange": {
-                "big_orange_x" : [point["x"] for point in big_orange],
-                "big_orange_y" : [point["y"] for point in big_orange]
-            }
+                "blue_x" : [point for point in blue_x],
+                "blue_y" : [point for point in blue_y],
+           
+                "yellow_x" : [point for point in yellow_x],
+                "yellow_y" : [point for point in yellow_y],
+            
+                "orange_x" : [point for point in orange_x],
+                "orange_y" : [point for point in orange_y],
+            
+                "big_orange_x" : [point for point in big_orange_x],
+                "big_orange_y" : [point for point in big_orange_y],
         }
 
         app_dir = os.path.dirname(os.path.realpath(__file__))
@@ -110,6 +92,7 @@ class SaveMap(Node):
         for i in range(len(msg.points)):
             waypoints["x"].append(msg.points[i].x)
             waypoints["y"].append(msg.points[i].y)
+        
         
         j["X"] = waypoints["x"]
         j["Y"] = waypoints["y"]
