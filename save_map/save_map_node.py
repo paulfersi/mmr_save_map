@@ -33,27 +33,27 @@ class SaveMap(Node):
         self.get_logger().info('Received cones position')
 
         for i in range(len(msg.points)):
-            if msg.colors[i].r < float(0.1) and msg.colors[i].g <float(0.1) and msg.colors[i].b <float(0.9):
+            if msg.colors[i].r == 0 and msg.colors[i].g == 0 and msg.colors[i].b == 1.0:
                 self.blue_x.append(msg.points[i].x)
                 self.blue_y.append(msg.points[i].y)
-            elif msg.colors[i].r < float(0.1) and msg.colors[i].g <float(0.1) and msg.colors[i].b <float(0.9):
+            elif msg.colors[i].r == 1.0 and msg.colors[i].g == 1.0 and msg.colors[i].b == 0:
                 self.yellow_x.append(msg.points[i].x)
                 self.yellow_y.append(msg.points[i].y)      
-            elif msg.colors[i].r >float(0.9) and msg.colors[i].g >float(0.3) and msg.colors[i].b <float(0.1):
+            elif msg.colors[i].r == 1.0 and msg.colors[i].g == 0.3 and msg.colors[i].b == 0:
                 self.orange_x.append(msg.points[i].x)
-                self.orange_y.append(msg.points[i].y)      
-            elif msg.colors[i].r > float(0.9) and msg.colors[i].g >float(0.6) and msg.colors[i].b <float(0.1):
+                self.orange_y.append(msg.points[i].y)    
+            elif msg.colors[i].r == 1.0 and msg.colors[i].g == 0.63 and msg.colors[i].b == 0.0:
                 self.big_orange_x.append(msg.points[i].x)
                 self.big_orange_y.append(msg.points[i].y)   
 
         if(self.export):
-            self.destroy_subscription(self.cones_positions_subscriber)
+            self.destroy_subscription(self.cones_positions_subscriber)  # stop receiving cones
             self.get_logger().info("Cones positions subscriber destroyed")
             self.export_cones(self.blue_x, self.blue_y, self.yellow_x, self.yellow_y,self.orange_x,self.orange_y,self.big_orange_x,self.big_orange_y)
 
     
     def export_cones(self, blue_x, blue_y, yellow_x, yellow_y, orange_x, orange_y, big_orange_x, big_orange_y):
-        #json object creation
+        #json object 
         j = {
                 "blue_x" : [point for point in blue_x],
                 "blue_y" : [point for point in blue_y],
@@ -73,7 +73,7 @@ class SaveMap(Node):
         filename = os.path.join(data_dir, "cones_positions.json")   
 
 
-        with open(filename,'a') as f:
+        with open(filename,'w') as f:
             json.dump(j ,f,indent=4)
             f.write('\n')
         
@@ -82,7 +82,7 @@ class SaveMap(Node):
 
     def waypoints_callback(self, msg: Marker):
         self.get_logger().info('Received waypoints')
-        self.export = True   #cones_positions can be exported
+        self.export = True   #cones_positions can now be exported
         j = {} #json object
         waypoints = {
             "x" : [],
@@ -93,7 +93,6 @@ class SaveMap(Node):
             waypoints["x"].append(msg.points[i].x)
             waypoints["y"].append(msg.points[i].y)
         
-        
         j["X"] = waypoints["x"]
         j["Y"] = waypoints["y"]
 
@@ -101,7 +100,7 @@ class SaveMap(Node):
         data_dir = os.path.join(app_dir,"data")
         filename = os.path.join(data_dir, "waypoints.json")  
         
-        with open(filename,'a') as f:     
+        with open(filename,'w') as f:     
             json.dump(j,f,indent=4)
             f.write('\n')
         self.get_logger().info(f"Waypoints saved in file {filename}")
