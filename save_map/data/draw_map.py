@@ -1,7 +1,7 @@
 import json
 import matplotlib.pyplot as plt
 
-#the script has to be placed in the same folder of the waypoints and cones_positions json filea
+#the script has to be placed in the same folder as the waypoints and cones_positions json file
 
 class DrawMap():
     def draw_map(self):
@@ -11,8 +11,6 @@ class DrawMap():
             waypoints = json.load(f_waypoints)
             waypoints_x = waypoints["X"]
             waypoints_y = waypoints["Y"]
-
-        
 
         with open("cones_positions.json") as f_cones_pos:
             cones_positions = json.load(f_cones_pos)

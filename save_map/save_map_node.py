@@ -6,6 +6,11 @@ from visualization_msgs.msg import Marker
 import json
 import os
 
+config = {
+    "trajectoryPointsTopic" : "/planning/waypoints_all",
+    "conesPositionsTopic" : "/slam/cones_positions"
+}
+
 class SaveMap(Node):
 
     export = False      # flag to export cones_positions at the end of the first lap
@@ -24,29 +29,29 @@ class SaveMap(Node):
         self.export = False
 
         #subscriptions
-        self.cones_positions_subscriber = self.create_subscription(Marker,'/slam/cones_positions',self.cones_positions_callback,10)
-        self.waypoints_subscriber = self.create_subscription(Marker,'/planning/waypoints_all',self.waypoints_callback,10)
+        self.cones_positions_subscriber = self.create_subscription(Marker,config["conesPositionsTopic"],self.cones_positions_callback,10)
+        self.waypoints_subscriber = self.create_subscription(Marker,config["trajectoryPointsTopic"],self.waypoints_callback,10)
 
         self.get_logger().info("Save map node initialized")
     
     def cones_positions_callback(self, msg: Marker):
         self.get_logger().info('Received cones position')
 
-        for i in range(len(msg.points)):
-            if msg.colors[i].r == 0 and msg.colors[i].g == 0 and msg.colors[i].b == 1.0:
-                self.blue_x.append(msg.points[i].x)
-                self.blue_y.append(msg.points[i].y)
-            elif msg.colors[i].r == 1.0 and msg.colors[i].g == 1.0 and msg.colors[i].b == 0:
-                self.yellow_x.append(msg.points[i].x)
-                self.yellow_y.append(msg.points[i].y)      
-            elif msg.colors[i].r == 1.0 and msg.colors[i].g == 0.3 and msg.colors[i].b == 0:
-                self.orange_x.append(msg.points[i].x)
-                self.orange_y.append(msg.points[i].y)    
-            elif msg.colors[i].r == 1.0 and msg.colors[i].g == 0.63 and msg.colors[i].b == 0.0:
-                self.big_orange_x.append(msg.points[i].x)
-                self.big_orange_y.append(msg.points[i].y)   
+        if(self.export):        # saves only the last message received (because it is the corrected one)
+            for i in range(len(msg.points)):
+                if msg.colors[i].r == 0 and msg.colors[i].g == 0 and msg.colors[i].b == 1.0:
+                    self.blue_x.append(msg.points[i].x)
+                    self.blue_y.append(msg.points[i].y)
+                elif msg.colors[i].r == 1.0 and msg.colors[i].g == 1.0 and msg.colors[i].b == 0:
+                    self.yellow_x.append(msg.points[i].x)
+                    self.yellow_y.append(msg.points[i].y)      
+                elif msg.colors[i].r == 1.0 and msg.colors[i].g == 0.3 and msg.colors[i].b == 0:
+                    self.orange_x.append(msg.points[i].x)
+                    self.orange_y.append(msg.points[i].y)    
+                elif msg.colors[i].r == 1.0 and msg.colors[i].g == 0.63 and msg.colors[i].b == 0.0:
+                    self.big_orange_x.append(msg.points[i].x)
+                    self.big_orange_y.append(msg.points[i].y)   
 
-        if(self.export):
             self.destroy_subscription(self.cones_positions_subscriber)  # stop receiving cones
             self.get_logger().info("Cones positions subscriber destroyed")
             self.export_cones(self.blue_x, self.blue_y, self.yellow_x, self.yellow_y,self.orange_x,self.orange_y,self.big_orange_x,self.big_orange_y)
