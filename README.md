@@ -16,3 +16,5 @@ $python3 draw_map.py
 ```
 
 The script takes the cones_positions from the files "cones_positions.json" and "waypoints.json", and draws the map of the track using matplotlib.
+
+@mmr_driverless
