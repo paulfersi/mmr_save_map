@@ -1,0 +1,4 @@
+/save_map:
+  ros__parameters:
+    cones_topic: /slam/cones_positions
+    trajectory_points_topic: /planning/waypoints_all

@@ -10,6 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/config', ['config/save_map.yaml']),
+        ('share/' + package_name + '/launch', ['launch/save_map_launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,7 +22,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'runner = save_map.save_map_node:main',
+            'save_map = save_map.save_map_node:main',
         ],
     },
 )

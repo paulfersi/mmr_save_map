@@ -6,10 +6,6 @@ from visualization_msgs.msg import Marker
 import json
 import os
 
-config = {
-    "trajectoryPointsTopic" : "/planning/waypoints_all",
-    "conesPositionsTopic" : "/slam/cones_positions"
-}
 
 class SaveMap(Node):
 
@@ -28,12 +24,20 @@ class SaveMap(Node):
         super().__init__('save_map')
         self.export = False
 
+        self.load_parameters()
+
         #subscriptions
-        self.cones_positions_subscriber = self.create_subscription(Marker,config["conesPositionsTopic"],self.cones_positions_callback,10)
-        self.waypoints_subscriber = self.create_subscription(Marker,config["trajectoryPointsTopic"],self.waypoints_callback,10)
+        self.cones_positions_subscriber = self.create_subscription(Marker,self.cones_topic,self.cones_positions_callback,10)
+        self.waypoints_subscriber = self.create_subscription(Marker,self.trajectory_points_topic,self.waypoints_callback,10)
 
         self.get_logger().info("Save map node initialized")
     
+    def load_parameters(self):
+        self.declare_parameter('cones_topic')
+        self.cones_topic = self.get_parameter('cones_topic').value
+        self.declare_parameter('trajectory_points_topic')
+        self.trajectory_points_topic = self.get_parameter('trajectory_points_topic').value
+
     def cones_positions_callback(self, msg: Marker):
         self.get_logger().info('Received cones position')
 
